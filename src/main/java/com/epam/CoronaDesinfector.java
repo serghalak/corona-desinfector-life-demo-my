@@ -2,8 +2,15 @@ package com.epam;
 
 public class CoronaDesinfector {
 
+    private Announcer announcer = new ConsoleAnnouncer();
+    private Policement policeman = new PolicementImpl();
+
+
     public void start(Room room) {
+        announcer.announce("Начинаем дезинфекцию, всё вон!");
+        policeman.makePeopleLeaveRoom();
         desinfect(room);
+        announcer.announce("Рискните зайти обратно");
     }
 
     private void desinfect(Room room) {
