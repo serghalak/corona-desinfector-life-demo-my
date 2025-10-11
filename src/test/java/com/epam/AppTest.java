@@ -1,4 +1,4 @@
-package guru.springframework;
+package com.epam;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
