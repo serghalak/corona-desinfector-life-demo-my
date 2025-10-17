@@ -2,6 +2,7 @@ package com.epam;
 
 import lombok.SneakyThrows;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
 public class ObjectFactory {
 
     private static ObjectFactory ourInstance = new ObjectFactory();
-    private List<ObjectConfigurator> configurators = new java.util.ArrayList<>();
+    private List<ObjectConfigurator> configurators = new ArrayList<>();
     public static ObjectFactory getInstance() {
         return ourInstance;
     }
