@@ -9,16 +9,19 @@ import java.util.Map;
 public class ObjectFactory {
 
     private static ObjectFactory ourInstance = new ObjectFactory();
-    private List<ObjectConfigurator> configurators;
+    private List<ObjectConfigurator> configurators = new java.util.ArrayList<>();
     public static ObjectFactory getInstance() {
         return ourInstance;
     }
     private Config config;
 
+    @SneakyThrows
     private ObjectFactory() {
         config = new JavaConfig("com.epam",
                 new HashMap<>(Map.of(Policement.class, AngryPolicement.class)));
-        configurators = List.of(new InjectPropertyAnnotationObjectConfigurator());
+        for (Class<? extends ObjectConfigurator> cl : config.getScanner().getSubTypesOf(ObjectConfigurator.class)) {
+            configurators.add(cl.getDeclaredConstructor().newInstance());
+        }
     }
 
     @SneakyThrows
