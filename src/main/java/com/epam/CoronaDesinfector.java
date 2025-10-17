@@ -2,11 +2,11 @@ package com.epam;
 
 public class CoronaDesinfector {
 
-    private Announcer announcer = ObjectFactory.getInstance().createObject(Announcer.class);
-    private Policement policeman =ObjectFactory.getInstance().createObject(Policement.class);
+    @InjectByType
+    private Announcer announcer; // = ObjectFactory.getInstance().createObject(Announcer.class);
+    @InjectByType
+    private Policement policeman; // =ObjectFactory.getInstance().createObject(Policement.class);
 
-    public CoronaDesinfector() {
-    }
 
 
     public void start(Room room) {
