@@ -1,6 +1,7 @@
 package com.epam;
 
 @Singleton
+@Deprecated
 public class RecommendatorImpl implements Recommendator {
 
     @InjectProperty("wisky")

@@ -3,8 +3,10 @@ package com.epam;
 import lombok.SneakyThrows;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,7 @@ public class ObjectFactory {
 
     //private static ObjectFactory ourInstance; // = new ObjectFactory();
     private List<ObjectConfigurator> configurators = new ArrayList<>();
+    private List<ProxyConfigurator> proxyConfigurators = new ArrayList<>();
     private final ApplicationContext context;
 //    public static ObjectFactory getInstance() {
 //        return ourInstance;
@@ -26,6 +29,10 @@ public class ObjectFactory {
         for (Class<? extends ObjectConfigurator> cl : context.getConfig().getScanner().getSubTypesOf(ObjectConfigurator.class)) {
             configurators.add(cl.getDeclaredConstructor().newInstance());
         }
+
+        for (Class<? extends ProxyConfigurator> cl : context.getConfig().getScanner().getSubTypesOf(ProxyConfigurator.class)) {
+           proxyConfigurators.add(cl.getDeclaredConstructor().newInstance());
+        }
     }
 
     @SneakyThrows
@@ -36,6 +43,15 @@ public class ObjectFactory {
 
         invokeInit(implClass, t);
 
+        t = wrapWithProxyIfNeeded(implClass, t);
+
+        return t;
+    }
+
+    private <T> T wrapWithProxyIfNeeded(Class<T> implClass, T t) {
+        for (ProxyConfigurator proxyConfigurator : proxyConfigurators) {
+            t = (T) proxyConfigurator.replaceWithProxyIfNeeded(t, implClass);
+        }
         return t;
     }
 
