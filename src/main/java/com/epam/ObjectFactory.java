@@ -1,12 +1,12 @@
 package com.epam;
 
-import lombok.Setter;
 import lombok.SneakyThrows;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ObjectFactory {
 
@@ -31,8 +31,27 @@ public class ObjectFactory {
     @SneakyThrows
     public <T> T createObject(Class<T> implClass) {
 
-        T t = implClass.getDeclaredConstructor().newInstance();
-        configurators.forEach(configurator -> configurator.configure(t, context));
+        T t = create(implClass);
+        configure(t);
+
+        invokeInit(implClass, t);
+
         return t;
+    }
+
+    private static <T> void invokeInit(Class<T> implClass, T t) throws IllegalAccessException, InvocationTargetException {
+        for (Method method : implClass.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(PostConstruct.class)) {
+                method.invoke(t);
+            }
+        }
+    }
+
+    private <T> void configure(T t) {
+        configurators.forEach(configurator -> configurator.configure(t, context));
+    }
+
+    private static <T> T create(Class<T> implClass) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        return implClass.getDeclaredConstructor().newInstance();
     }
 }
