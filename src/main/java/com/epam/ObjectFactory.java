@@ -1,5 +1,6 @@
 package com.epam;
 
+import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.util.ArrayList;
@@ -9,31 +10,29 @@ import java.util.Map;
 
 public class ObjectFactory {
 
-    private static ObjectFactory ourInstance = new ObjectFactory();
+    //private static ObjectFactory ourInstance; // = new ObjectFactory();
     private List<ObjectConfigurator> configurators = new ArrayList<>();
-    public static ObjectFactory getInstance() {
-        return ourInstance;
-    }
-    private Config config;
+    private final ApplicationContext context;
+//    public static ObjectFactory getInstance() {
+//        return ourInstance;
+//    }
+    //private Config config;
 
     @SneakyThrows
-    private ObjectFactory() {
-        config = new JavaConfig("com.epam",
-                new HashMap<>(Map.of(Policement.class, AngryPolicement.class)));
-        for (Class<? extends ObjectConfigurator> cl : config.getScanner().getSubTypesOf(ObjectConfigurator.class)) {
+    public ObjectFactory(ApplicationContext context) {
+//        config = new JavaConfig("com.epam",
+//                new HashMap<>(Map.of(Policement.class, AngryPolicement.class)));
+        this.context = context;
+        for (Class<? extends ObjectConfigurator> cl : context.getConfig().getScanner().getSubTypesOf(ObjectConfigurator.class)) {
             configurators.add(cl.getDeclaredConstructor().newInstance());
         }
     }
 
     @SneakyThrows
-    public <T> T createObject(Class<T> type) {
-        Class<? extends T> implClass = type;
+    public <T> T createObject(Class<T> implClass) {
 
-        if (type.isInterface()) {
-            implClass = config.getImplClass(type);
-        }
         T t = implClass.getDeclaredConstructor().newInstance();
-        configurators.forEach(configurator -> configurator.configure(t));
+        configurators.forEach(configurator -> configurator.configure(t, context));
         return t;
     }
 }
